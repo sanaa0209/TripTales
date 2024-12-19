@@ -29,6 +29,17 @@
             android:name=".ui.diario.DiaryActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
+<<<<<<< Updated upstream
+=======
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ui.login.LoginActivity"
+            android:exported="true">
+>>>>>>> Stashed changes
         </activity>
     </application>
 
