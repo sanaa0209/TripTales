@@ -1,148 +1,57 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dialog_button"
+    android:orientation="vertical"
+    android:padding="10dp"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@android:color/transparent"
-    tools:context=".ui.homepage.DialogAddDiaryActivity">
+    android:layout_height="wrap_content"
+    android:background="@drawable/edit_text_background">
+
+
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins_bold"
+        android:text="Inserisci un nuovo diario!"
+        android:textAlignment="center"/>
+
+
+    <EditText
+        android:id="@+id/diary_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/edit_text_background"
+        android:fontFamily="@font/poppins_bold"
+        android:hint="Nome Città"
+        android:textAlignment="center"
+        android:textColor="#000000" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:gravity="center">
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
+        <Button
+            android:id="@+id/btn_add"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            app:cardBackgroundColor="#EBEBEB"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="8dp">
+            android:background="@drawable/edit_text_background"
+            android:backgroundTint="#B57F63"
+            android:text="Aggiungi" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <!-- Nome Diario -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:text="@string/nome_diario"
-                    android:textColor="#000000"
-                    android:textSize="18sp" />
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/inputDiaryName"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Inserisci il nome" />
-
-                <!-- Data Partenza -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginBottom="8dp"
-                    android:text="Data partenza"
-                    android:textColor="#000000"
-                    android:textSize="18sp" />
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/inputStartDate"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="GG/MM/AAAA"
-                    android:inputType="date" />
-
-                <!-- Data Arrivo -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginBottom="8dp"
-                    android:text="Data arrivo"
-                    android:textColor="#000000"
-                    android:textSize="18sp" />
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/inputEndDate"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="GG/MM/AAAA"
-                    android:inputType="date" />
-
-                <!-- Seleziona immagine -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginBottom="8dp"
-                    android:text="Scegli un’immagine"
-                    android:textColor="#000000"
-                    android:textSize="18sp" />
-
-                <Button
-                    android:id="@+id/buttonChooseImage"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginBottom="8dp"
-                    android:backgroundTint="#333333"
-                    android:text="Files"
-                    android:textColor="#FFFFFF" />
-
-                <ImageView
-                    android:id="@+id/imageViewSelected"
-                    android:layout_width="match_parent"
-                    android:layout_height="150dp"
-                    android:layout_marginTop="8dp"
-                    android:contentDescription="Immagine selezionata"
-                    android:scaleType="centerCrop"
-                    android:visibility="gone" /> <!-- L'immagine sarà nascosta inizialmente -->
-
-
-                <!-- Buttons inside the CardView -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:gravity="center_vertical|end"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="16dp">
-
-                    <Button
-                        android:id="@+id/buttonCancel"
-                        android:layout_width="0dp"
-                        android:layout_height="48dp"
-                        android:layout_weight="1"
-                        android:text="Cancella"
-                        android:textColor="#000000"
-                        app:backgroundTint="#FFFFFF" />
-
-                    <Button
-                        android:id="@+id/buttonSave"
-                        android:layout_width="0dp"
-                        android:layout_height="48dp"
-                        android:layout_marginStart="8dp"
-                        android:layout_weight="1"
-                        android:text="Salva"
-                        android:textColor="#FFFFFF"
-                        app:backgroundTint="#B57F63" />
-                </LinearLayout>
-
-            </LinearLayout>
-
-        </androidx.cardview.widget.CardView>
+        <Button
+            android:id="@+id/btn_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:backgroundTint="#B57F63"
+            android:text="Annulla" />
 
     </LinearLayout>
 
-<<<<<<< Updated upstream
 </LinearLayout>
-=======
-</ScrollView>
->>>>>>> Stashed changes

@@ -15,7 +15,6 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.unimib.triptales.R;
-import com.unimib.triptales.ui.diario.fragment.Diary;
 import com.unimib.triptales.ui.diario.fragment.TappeFragment;
 
 public class HomeFragment extends Fragment {
@@ -33,9 +32,9 @@ public class HomeFragment extends Fragment {
             View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.activity_dialog_add_diary, null);
 
             // Trova gli elementi del layout personalizzato
-            EditText editDiaryName = dialogView.findViewById(R.id.inputDiaryName);
-            Button btnAdd = dialogView.findViewById(R.id.buttonSave);
-            Button btnCancel = dialogView.findViewById(R.id.buttonCancel);
+            EditText editDiaryName = dialogView.findViewById(R.id.diary_name);
+            Button btnAdd = dialogView.findViewById(R.id.btn_add);
+            Button btnCancel = dialogView.findViewById(R.id.btn_cancel);
 
             // Crea il dialog
             AlertDialog dialog = new AlertDialog.Builder(getContext())
@@ -75,5 +74,4 @@ public class HomeFragment extends Fragment {
 
         return view;
     }
-
 }
