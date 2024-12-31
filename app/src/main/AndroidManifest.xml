@@ -3,7 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.unimib.triptales">
 
+
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
 
     <application
         android:allowBackup="true"
@@ -35,6 +41,17 @@
         <activity
             android:name=".ui.diario.TappaActivity"
             android:exported="false" />
+
+      <activity
+            android:name=".ui.intro.IntroActivity"
+            android:exported="true" >
+           <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".ui.homepage.DialogAddDiaryActivity"
             android:exported="false" />
@@ -47,16 +64,14 @@
         <activity
             android:name=".ui.diario.DiaryActivity"
             android:exported="true"
-            android:windowSoftInputMode="adjustResize">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:windowSoftInputMode="adjustResize"></activity>
         <activity
             android:name=".ui.login.LoginActivity"
-            android:exported="true"></activity>
+            android:exported="true"/>         
+                <category android:name="android.intent.category.LAUNCHER" />
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzaSyC5UPTgGzRkA6Iwj8ycesnezLjw60-FWP4" />
     </application>
 
 </manifest>
