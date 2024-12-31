@@ -64,11 +64,14 @@
         <activity
             android:name=".ui.diario.DiaryActivity"
             android:exported="true"
-            android:windowSoftInputMode="adjustResize"></activity>
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.login.LoginActivity"
-            android:exported="true"/>         
-                <category android:name="android.intent.category.LAUNCHER" />
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ui.login.LoginActivity"
+            android:exported="true"/>     
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyC5UPTgGzRkA6Iwj8ycesnezLjw60-FWP4" />
