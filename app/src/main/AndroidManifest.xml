@@ -3,6 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.unimib.triptales">
 
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -13,6 +21,36 @@
         android:supportsRtl="true"
         android:theme="@style/Base.Theme.TripTales"
         tools:targetApi="31">
+        <activity
+            android:name=".FullscreenImageActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:exported="false"
+            android:label="@string/title_activity_fullscreen_image"
+            android:theme="@style/Base.Theme.TripTales.Fullscreen" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.unimib.triptales.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <activity
+            android:name=".ui.diario.TappaActivity"
+            android:exported="false" />
+
+      <activity
+            android:name=".ui.intro.IntroActivity"
+            android:exported="true" >
+           <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name=".ui.homepage.DialogAddDiaryActivity"
@@ -22,20 +60,21 @@
             android:exported="true" />
         <activity
             android:name=".ui.homepage.MainActivity"
-            android:exported="true"/>
+            android:exported="true" />
         <activity
             android:name=".ui.diario.DiaryActivity"
             android:exported="true"
-            android:windowSoftInputMode="adjustResize">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.login.LoginActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ui.login.LoginActivity"
+            android:exported="true"/>     
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzaSyC5UPTgGzRkA6Iwj8ycesnezLjw60-FWP4" />
     </application>
 
 </manifest>
