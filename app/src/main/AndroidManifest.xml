@@ -23,7 +23,9 @@
         <activity
             android:name=".ui.intro.GetStartedActivity"
             android:exported="false" />
-
+        <activity
+            android:name=".ui.settings.SettingsActivity"
+            android:exported="true"/>
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.unimib.triptales.fileprovider"
