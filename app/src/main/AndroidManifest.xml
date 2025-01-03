@@ -23,6 +23,7 @@
         <activity
             android:name=".ui.intro.GetStartedActivity"
             android:exported="false" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.unimib.triptales.fileprovider"
@@ -32,8 +33,15 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+
         <activity
             android:name=".ui.settings.SettingsActivity"
+            android:exported="true"/>
+        <activity
+            android:name=".ui.diario.TappaActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.intro.IntroActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -41,15 +49,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ui.diario.TappaActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.intro.IntroActivity"
-            android:exported="true"/>
-        <activity
-            android:name=".ui.homepage.DialogAddDiaryActivity"
-            android:exported="false" />
         <activity
             android:name=".ui.homepage.HomepageActivity"
             android:exported="true" />
