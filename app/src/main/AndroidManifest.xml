@@ -47,9 +47,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.homepage.DialogAddDiaryActivity"
-            android:exported="false" />
-        <activity
             android:name=".ui.homepage.HomepageActivity"
             android:exported="true" />
         <activity
