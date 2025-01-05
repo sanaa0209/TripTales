@@ -51,9 +51,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.homepage.DialogAddDiaryActivity"
-            android:exported="false" />
-        <activity
             android:name=".ui.homepage.HomepageActivity"
             android:exported="true" />
         <activity
@@ -62,8 +59,7 @@
         <activity
             android:name=".ui.diario.DiaryActivity"
             android:exported="true"
-            android:windowSoftInputMode="adjustResize">
-        </activity>
+            android:windowSoftInputMode="adjustResize"/>
         <activity
             android:name=".ui.login.LoginActivity"
             android:exported="true"
