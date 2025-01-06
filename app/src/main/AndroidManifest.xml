@@ -39,16 +39,11 @@
             android:name=".ui.settings.SettingsActivity"
             android:exported="true"/>
         <activity
-            android:name=".ui.diario.TappaActivity"
+            android:name=".ui.diary.TappaActivity"
             android:exported="false" />
         <activity
             android:name=".ui.intro.IntroActivity"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".ui.homepage.HomepageActivity"
@@ -57,10 +52,15 @@
             android:name=".ui.homepage.MainActivity"
             android:exported="true" />
         <activity
-            android:name=".ui.diario.DiaryActivity"
+            android:name=".ui.diary.DiaryActivity"
             android:exported="true"
-            android:windowSoftInputMode="adjustResize"/>
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".ui.login.LoginActivity"
             android:exported="true"
