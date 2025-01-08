@@ -34,11 +34,14 @@
             android:name=".ui.settings.SettingsActivity"
             android:exported="true"/>
         <activity
-            android:name=".ui.diario.TappaActivity"
+            android:name=".ui.diary.TappaActivity"
             android:exported="false" />
         <activity
             android:name=".ui.intro.IntroActivity"
-            android:exported="true">
+            android:exported="true"/>
+        <activity
+            android:name=".ui.homepage.HomepageActivity"
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -46,16 +49,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.homepage.DialogAddDiaryActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.homepage.HomepageActivity"
-            android:exported="true" />
-        <activity
             android:name=".ui.homepage.MainActivity"
             android:exported="true" />
         <activity
-            android:name=".ui.diario.DiaryActivity"
+            android:name=".ui.diary.DiaryActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
         </activity>
