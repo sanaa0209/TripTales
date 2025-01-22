@@ -20,13 +20,13 @@ public class User implements Parcelable {
     private String email;
     private String idToken;
 
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     private int id;
 
     @ColumnInfo(name = "user_surname")
     private String surname;
 
-    @ColumnInfo(name = "user_passowrd")
+    @ColumnInfo(name = "user_password")
     private String password;
 
     public User(){

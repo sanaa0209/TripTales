@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,11 +25,13 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.unimib.triptales.R;
-import com.unimib.triptales.adapters.Diary;
 import com.unimib.triptales.adapters.DiaryAdapter;
+import com.unimib.triptales.database.AppRoomDatabase;
+import com.unimib.triptales.database.DiaryDao;
+import com.unimib.triptales.model.Diary;
+import com.unimib.triptales.ui.homepage.viewmodel.DiaryViewModel;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,7 +40,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -73,6 +73,14 @@ public class HomeFragment extends Fragment implements DiaryAdapter.OnDiaryItemLo
     private ArrayList<Diary> selectedDiaries = new ArrayList<>();
     private View imageViewSelectedChanges;
     private String country;
+    private DiaryDao diaryDao;
+    private DiaryViewModel diaryViewModel;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        diaryDao = AppRoomDatabase.getDatabase(getContext()).diaryDao();
+    }
 
     @Nullable
     @Override
@@ -295,18 +303,37 @@ public class HomeFragment extends Fragment implements DiaryAdapter.OnDiaryItemLo
         String startDate = inputDayStartDate.getText().toString() + "/" + inputMonthStartDate.getText().toString() + "/" + inputYearStartDate.getText().toString();
         String endDate = inputDayEndDate.getText().toString() + "/" + inputMonthEndDate.getText().toString() + "/" + inputYearEndDate.getText().toString();
         String country = ((AutoCompleteTextView) overlayAddDiary.findViewById(R.id.VisitedCountry)).getText().toString();
-        if (diaryName.isEmpty() || selectedImageUri == null || startDate.isEmpty() || endDate.isEmpty()|| country.isEmpty()) {
+
+        if (diaryName.isEmpty() || selectedImageUri == null || startDate.isEmpty() || endDate.isEmpty() || country.isEmpty()) {
             Toast.makeText(getContext(), "Compila tutti i campi e scegli un'immagine!", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        // Create a new Diary object
         Diary newDiary = new Diary(diaryName, startDate, endDate, selectedImageUri, country);
-        diaryList.add(newDiary);
-        diaryAdapter.notifyDataSetChanged();
-        hideOverlay(overlayAddDiary);
-        updateEmptyMessage();
-        Toast.makeText(getContext(), "Diario salvato con successo!", Toast.LENGTH_SHORT).show();
+
+        // Insert into the database
+        new Thread(() -> {
+            try {
+                diaryDao.insert(newDiary);
+                getActivity().runOnUiThread(() -> {
+                    diaryViewModel.loadDiaries();
+                    diaryList.add(newDiary);
+                    diaryAdapter.notifyDataSetChanged();
+                    hideOverlay(overlayAddDiary);
+                    updateEmptyMessage();
+                    Toast.makeText(getContext(), "Diario salvato con successo!", Toast.LENGTH_SHORT).show();
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                getActivity().runOnUiThread(() ->
+                        Toast.makeText(getContext(), "Errore nel salvataggio: " + e.getMessage(), Toast.LENGTH_LONG).show()
+                );
+            }
+        }).start();
+
     }
+
 
     private void modifyDiary() {
         if (selectedDiary == null) return;
@@ -347,6 +374,20 @@ public class HomeFragment extends Fragment implements DiaryAdapter.OnDiaryItemLo
         deleteDiaryButton.setVisibility(selectedDiaries.isEmpty() ? View.GONE : View.VISIBLE); // Nascondi "Elimina" se nessun diario è selezionato
 
         Toast.makeText(getContext(), "Diario modificato con successo!", Toast.LENGTH_SHORT).show();
+    }
+
+    private void loadDiariesFromDatabase() {
+        new Thread(() -> {
+            List<Diary> allDiaries = diaryDao.getAllDiaries();
+
+            // Update the UI on the main thread
+            getActivity().runOnUiThread(() -> {
+                diaryList.clear();
+                diaryList.addAll(allDiaries);
+                diaryAdapter.notifyDataSetChanged();
+                updateEmptyMessage();
+            });
+        }).start();
     }
 
 
