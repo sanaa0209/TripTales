@@ -25,7 +25,6 @@ public class GoalLocalDataSource implements BaseGoalLocalDataSource{
 
     @Override
     public void updateGoalName(int goalId, String newName) {
-
         goalDao.updateName(goalId, newName);
     }
 

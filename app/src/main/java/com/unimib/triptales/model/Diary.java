@@ -2,16 +2,13 @@ package com.unimib.triptales.model;
 
 import static androidx.room.ForeignKey.CASCADE;
 
-import android.net.Uri;
-
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
+import androidx.room.Relation;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
+import java.util.List;
 
 @Entity(foreignKeys = @ForeignKey(entity = User.class, parentColumns = "id", childColumns = "userId", onDelete = CASCADE))
 public class Diary {
@@ -29,85 +26,18 @@ public class Diary {
     @ColumnInfo(name = "diary_end_date")
     private String endDate;
 
-    @ColumnInfo(name = "diary_cover_image_uri")
-    private Uri coverImageUri;
+    @ColumnInfo(name = "diary_photo_path")
+    private String photoPath;
 
     @ColumnInfo(name = "diary_budget")
     private String budget;
 
-    private boolean isSelected;
+    public String getStartDate() {
+        return startDate;
+    }
 
-    @ColumnInfo(name = "diary_country")
-    private String country;
-
-    // Costruttore completo
-    public Diary(int id, int userId, String name, String startDate, String endDate, Uri coverImageUri, String budget, String country) {
-        this.id = id;
-        this.userId = userId;
-        this.name = name;
+    public void setStartDate(String startDate) {
         this.startDate = startDate;
-        this.endDate = endDate;
-        this.coverImageUri = coverImageUri;
-        this.budget = budget;
-        this.country = country;
-        this.isSelected = false;
-    }
-
-    // Metodi per calcolare la durata del viaggio
-    public int getTravelDuration() {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-        try {
-            Date start = sdf.parse(startDate);
-            Date end = sdf.parse(endDate);
-
-            if (start != null && end != null && start.before(end)) {
-                long diffInMillis = end.getTime() - start.getTime();
-                long diffInDays = diffInMillis / (1000 * 60 * 60 * 24);
-                return (int) diffInDays;
-            } else {
-                return 0;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
-        }
-    }
-
-    // Metodo per ottenere l'abbreviazione del mese di inizio
-    public String getStartMonthAbbreviation() {
-        return getMonthAbbreviation(startDate);
-    }
-
-    // Metodo per estrarre l'abbreviazione del mese
-    private String getMonthAbbreviation(String dateString) {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-        try {
-            Date date = sdf.parse(dateString);
-            if (date != null) {
-                SimpleDateFormat monthFormat = new SimpleDateFormat("MMM", Locale.getDefault());
-                return monthFormat.format(date).toUpperCase();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "";
-    }
-
-    // Getter e setter per i campi
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
     }
 
     public String getName() {
@@ -118,12 +48,20 @@ public class Diary {
         this.name = name;
     }
 
-    public String getStartDate() {
-        return startDate;
+    public int getUserId() {
+        return userId;
     }
 
-    public void setStartDate(String startDate) {
-        this.startDate = startDate;
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getEndDate() {
@@ -134,13 +72,13 @@ public class Diary {
         this.endDate = endDate;
     }
 
-    public Uri getCoverImageUri() {
-        return coverImageUri;
-    }
-    public void setCoverImageUri(Uri coverImageUri) {
-        this.coverImageUri = coverImageUri;
+    public String getPhotoPath() {
+        return photoPath;
     }
 
+    public void setPhotoPath(String photoPath) {
+        this.photoPath = photoPath;
+    }
 
     public String getBudget() {
         return budget;
@@ -148,21 +86,5 @@ public class Diary {
 
     public void setBudget(String budget) {
         this.budget = budget;
-    }
-
-    public boolean isSelected() {
-        return isSelected;
-    }
-
-    public void setSelected(boolean isSelected) {
-        this.isSelected = isSelected;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
     }
 }
