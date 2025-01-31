@@ -44,16 +44,12 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
+            android:exported="true"/>
         <activity
             android:name=".ui.homepage.HomepageActivity"
-            android:exported="true"/>
+            android:exported="true" >
+        </activity>
 
-
-        <activity
-            android:name=".ui.homepage.MainActivity"
-            android:exported="true" />
         <activity
             android:name=".ui.diary.DiaryActivity"
             android:exported="true"
