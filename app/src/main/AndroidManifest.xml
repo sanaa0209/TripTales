@@ -34,7 +34,7 @@
             android:name=".ui.settings.SettingsActivity"
             android:exported="true"/>
         <activity
-            android:name=".ui.diary.TappaActivity"
+            android:name=".ui.diary.CheckpointDiaryActivity"
             android:exported="false" />
         <activity
             android:name=".ui.intro.IntroActivity"
