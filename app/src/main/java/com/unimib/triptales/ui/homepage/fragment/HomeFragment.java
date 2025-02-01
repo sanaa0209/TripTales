@@ -1,9 +1,7 @@
 package com.unimib.triptales.ui.homepage.fragment;
 
 import android.app.DatePickerDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -38,20 +36,12 @@ import com.unimib.triptales.database.AppRoomDatabase;
 import com.unimib.triptales.database.DiaryDao;
 import com.unimib.triptales.database.UserDao;
 import com.unimib.triptales.model.Diary;
-import com.unimib.triptales.model.User;
-import com.unimib.triptales.ui.diary.fragment.CheckpointsFragment;
 import com.unimib.triptales.ui.homepage.viewmodel.SharedViewModel;
-import com.unimib.triptales.ui.login.viewmodel.UserViewModel;
-import com.unimib.triptales.util.SharedPreferencesUtils;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.unimib.triptales.util.GeoJSONParser;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -74,8 +64,7 @@ public class HomeFragment extends Fragment implements DiaryAdapter.OnDiaryItemLo
     private EditText inputDayEndDate, inputMonthEndDate, inputYearEndDate;
     private EditText modifyDayStartDate, modifyMonthStartDate, modifyYearStartDate;
     private EditText modifyDayEndDate, modifyMonthEndDate, modifyYearEndDate;
-    private View Country;
-    private View CountryChanges;
+
 
     private EditText inputDiaryName, modifyDiaryName;
     private ImageView imageViewCover, modifyCoverImage;
@@ -86,15 +75,13 @@ public class HomeFragment extends Fragment implements DiaryAdapter.OnDiaryItemLo
     private final Calendar calendar = Calendar.getInstance();
 
     private ArrayList<Diary> selectedDiaries = new ArrayList<>();
-    private View imageViewSelectedChanges;
-    private String country;
+
     private SharedViewModel sharedViewModel;
     private int id;
-    private String idUser;
     private String budget;
     AppRoomDatabase database;
     private DiaryDao diaryDao;
-    private UserDao userDao;
+
 
 
     @Nullable
@@ -188,8 +175,6 @@ public class HomeFragment extends Fragment implements DiaryAdapter.OnDiaryItemLo
         diaryDao = database.diaryDao();
         String idUser = getLoggedUserId();
 
-
-
         // Recupera solo i diari dell'utente corrente
         diaryList = diaryDao.getAllDiariesByUserId(idUser);
 
@@ -199,45 +184,17 @@ public class HomeFragment extends Fragment implements DiaryAdapter.OnDiaryItemLo
         //load diarys. appdat erecycle view
     }
 
-    private List<String> extractCountryNamesFromJson(Context context) {
-        List<String> countryNames = new ArrayList<>();
-        try {
-            InputStream inputStream = context.getResources().openRawResource(R.raw.world_countries);
-
-            StringBuilder builder = new StringBuilder();
-            int byteData;
-            while ((byteData = inputStream.read()) != -1) {
-                builder.append((char) byteData);
-            }
-
-            JSONObject jsonObject = new JSONObject(builder.toString());
-            JSONArray features = jsonObject.getJSONArray("features");
-
-            for (int i = 0; i < features.length(); i++) {
-                JSONObject feature = features.getJSONObject(i);
-                JSONObject properties = feature.getJSONObject("properties");
-                String countryName = properties.getString("NAME_IT");
-                countryNames.add(countryName);
-            }
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
-        }
-        return countryNames;
-    }
 
     private void setupAutoCompleteTextView(View overlayAddDiary, View overlayModifyDiary) {
         AutoCompleteTextView countryAutoComplete = overlayAddDiary.findViewById(R.id.VisitedCountry);
         AutoCompleteTextView countryChangesAutoComplete = overlayModifyDiary.findViewById(R.id.VisitedCountryChanges);
 
-        List<String> countryNames = extractCountryNamesFromJson(requireContext());
+        List<String> countryNames = GeoJSONParser.extractCountryNamesFromJson(requireContext());
         ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, countryNames);
 
         countryAutoComplete.setAdapter(adapter);
         countryChangesAutoComplete.setAdapter(adapter);
     }
-
-
-
 
     private void setupRecyclerView() {
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
@@ -264,10 +221,6 @@ public class HomeFragment extends Fragment implements DiaryAdapter.OnDiaryItemLo
             // Nascondi l'overlay di modifica e aggiorna i bottoni
             hideOverlay(overlayModifyDiary);
         });
-
-
-
-
 
         buttonSave.setOnClickListener(v -> saveDiary());
         buttonSaveModify.setOnClickListener(v -> modifyDiary());
@@ -360,7 +313,6 @@ public class HomeFragment extends Fragment implements DiaryAdapter.OnDiaryItemLo
         }
     }
 
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -375,7 +327,6 @@ public class HomeFragment extends Fragment implements DiaryAdapter.OnDiaryItemLo
 
         }
     }
-
 
     public String getLoggedUserId() {
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -397,7 +348,6 @@ public class HomeFragment extends Fragment implements DiaryAdapter.OnDiaryItemLo
             saveImageToInternalStorage(Uri.parse(selectedImageUri));
 
         }
-
 
         // Ottieni l'ID dell'utente corrente (ad esempio, da un sistema di autenticazione)
         String currentUserId = getLoggedUserId(); // Implementa questo metodo per ottenere l'ID dell'utente
@@ -449,8 +399,6 @@ public class HomeFragment extends Fragment implements DiaryAdapter.OnDiaryItemLo
         Toast.makeText(getContext(), "Diario modificato con successo!", Toast.LENGTH_SHORT).show();
     }
 
-
-
     private void deleteSelectedDiaries() {
         for (Diary diary : selectedDiaries) {
             diaryDao.delete(diary); // Elimina il diario dal database
@@ -469,7 +417,6 @@ public class HomeFragment extends Fragment implements DiaryAdapter.OnDiaryItemLo
         modifyDayStartDate.setText(startDate[0]);
         modifyMonthStartDate.setText(startDate[1]);
         modifyYearStartDate.setText(startDate[2]);
-
 
         // Ripristina la data di fine
         String[] endDate = diary.getEndDate().split("/");
@@ -490,7 +437,6 @@ public class HomeFragment extends Fragment implements DiaryAdapter.OnDiaryItemLo
         AutoCompleteTextView countryChangesAutoComplete = overlayModifyDiary.findViewById(R.id.VisitedCountryChanges);
         countryChangesAutoComplete.setText(diary.getCountry());
     }
-
 
     private void resetDiaryFields() {
         inputDiaryName.setText("");
@@ -522,7 +468,6 @@ public class HomeFragment extends Fragment implements DiaryAdapter.OnDiaryItemLo
             recyclerView.setVisibility(View.VISIBLE);
         }
     }
-
 
     public void onDiaryItemLongClicked(Diary diary) {
 
