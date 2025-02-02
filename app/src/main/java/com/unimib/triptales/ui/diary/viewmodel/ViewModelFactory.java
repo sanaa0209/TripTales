@@ -5,12 +5,11 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.unimib.triptales.repository.checkpoint.ICheckpointRepository;
-import com.unimib.triptales.repository.diary.DiaryRepository;
 import com.unimib.triptales.repository.diary.IDiaryRepository;
 import com.unimib.triptales.repository.expense.IExpenseRepository;
 import com.unimib.triptales.repository.goal.IGoalRepository;
 import com.unimib.triptales.repository.task.ITaskRepository;
-//import com.unimib.triptales.ui.homepage.viewmodel.HomePageViewModel;
+import com.unimib.triptales.ui.homepage.viewmodel.HomePageViewModel;
 
 public class ViewModelFactory implements ViewModelProvider.Factory {
     private final IExpenseRepository expenseRepository;
@@ -77,9 +76,9 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
         if (modelClass.isAssignableFrom(CheckpointViewModel.class)) {
             return (T) new CheckpointViewModel(checkpointRepository);
         }
-       // if (modelClass.isAssignableFrom(HomePageViewModel.class)){
-        //    return (T) new HomePageViewModel((diaryRepository));
-       // }
+        if (modelClass.isAssignableFrom(HomePageViewModel.class)){
+           return (T) new HomePageViewModel((diaryRepository));
+       }
         throw new IllegalArgumentException("Unknown ViewModel class: " + modelClass.getName());
     }
 

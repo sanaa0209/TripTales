@@ -6,7 +6,6 @@ import java.util.List;
 
 public interface BaseDiaryLocalDataSource {
     long insertDiary(Diary diary);
-    void updateDiaryName(int diaryId, String newName);
 
     void updateDiaryIsSelected(int diaryId, boolean newIsSelected);
     void deleteDiary(Diary diary);
@@ -15,6 +14,7 @@ public interface BaseDiaryLocalDataSource {
     List<Diary> getSelectedDiaries();
 
     List<Diary> getAllDiariesByUserId(String userId);
-    //List<Diary> getAllDiariesByUserId(int Id);
+
+    void updateDiary();
 
 }

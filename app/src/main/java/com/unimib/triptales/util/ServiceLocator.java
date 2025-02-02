@@ -6,6 +6,8 @@ import android.content.Context;
 import com.unimib.triptales.database.AppRoomDatabase;
 import com.unimib.triptales.repository.checkpoint.CheckpointRepository;
 import com.unimib.triptales.repository.checkpoint.ICheckpointRepository;
+import com.unimib.triptales.repository.diary.DiaryRepository;
+import com.unimib.triptales.repository.diary.IDiaryRepository;
 import com.unimib.triptales.repository.expense.ExpenseRepository;
 import com.unimib.triptales.repository.expense.IExpenseRepository;
 import com.unimib.triptales.repository.goal.GoalRepository;
@@ -18,6 +20,10 @@ import com.unimib.triptales.source.checkpoint.BaseCheckpointLocalDataSource;
 import com.unimib.triptales.source.checkpoint.BaseCheckpointRemoteDataSource;
 import com.unimib.triptales.source.checkpoint.CheckpointLocalDataSource;
 import com.unimib.triptales.source.checkpoint.CheckpointRemoteDataSource;
+import com.unimib.triptales.source.diary.BaseDiaryLocalDataSource;
+import com.unimib.triptales.source.diary.BaseDiaryRemoteDataSource;
+import com.unimib.triptales.source.diary.DiaryLocalDataSource;
+import com.unimib.triptales.source.diary.DiaryRemoteDataSource;
 import com.unimib.triptales.source.expense.BaseExpenseLocalDataSource;
 import com.unimib.triptales.source.expense.BaseExpenseRemoteDataSource;
 import com.unimib.triptales.source.expense.ExpenseLocalDataSource;
@@ -113,5 +119,13 @@ public class ServiceLocator {
         BaseCheckpointRemoteDataSource checkpointRemoteDataSource =
                 new CheckpointRemoteDataSource();
         return new CheckpointRepository(checkpointLocalDataSource, checkpointRemoteDataSource);
+    }
+
+    public IDiaryRepository getDiaryRepository(Context context){
+        BaseDiaryLocalDataSource diaryLocalDataSource =
+                new DiaryLocalDataSource(AppRoomDatabase.getDatabase(context).diaryDao());
+        BaseDiaryRemoteDataSource diaryRemoteDataSource =
+                new DiaryRemoteDataSource();
+        return new DiaryRepository(diaryLocalDataSource, diaryRemoteDataSource);
     }
 }

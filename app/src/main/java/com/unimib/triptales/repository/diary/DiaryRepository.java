@@ -2,7 +2,9 @@ package com.unimib.triptales.repository.diary;
 
 import com.unimib.triptales.model.Diary;
 import com.unimib.triptales.source.diary.BaseDiaryLocalDataSource;
+import com.unimib.triptales.source.diary.BaseDiaryRemoteDataSource;
 
+import java.util.Collections;
 import java.util.List;
 
 
@@ -17,7 +19,7 @@ public class DiaryRepository implements IDiaryRepository, DiaryResponseCallBack 
     private final Executor executor;
 
     // Costruttore per inizializzare il data source e l'esecutore
-    public DiaryRepository(BaseDiaryLocalDataSource localDataSource) {
+    public DiaryRepository(BaseDiaryLocalDataSource localDataSource, BaseDiaryRemoteDataSource diaryRemoteDataSource) {
         this.localDataSource = localDataSource;
         this.executor = Executors.newSingleThreadExecutor();
     }
@@ -36,26 +38,16 @@ public class DiaryRepository implements IDiaryRepository, DiaryResponseCallBack 
 
     @Override
     public long insertDiary(Diary diary) {
-        executor.execute(() -> {
-            try {
-                localDataSource.insertDiary(diary);
-            } catch (Exception e) {
-                onFailureFromLocal(e);
-            }
-        });
-        return localDataSource.insertDiary(diary);
+        try {
+            return localDataSource.insertDiary(diary);
+        } catch (Exception e) {
+            onFailureFromLocal(e);
+            return -1; // Ritorna un valore negativo in caso di errore
+        }
     }
 
-    @Override
-    public void updateDiaryName(int diaryId, String newName) {
-        executor.execute(() -> {
-            try {
-                localDataSource.updateDiaryName(diaryId, newName);
-            } catch (Exception e) {
-                onFailureFromLocal(e);
-            }
-        });
-    }
+
+
 
     @Override
     public void updateDiaryIsSelected(int diaryId, boolean isSelected) {
@@ -91,15 +83,16 @@ public class DiaryRepository implements IDiaryRepository, DiaryResponseCallBack 
     }
 
     @Override
-    public void getAllDiaries(DiaryResponseCallBack callBack) {
+    public List<Diary> getAllDiaries() {
         executor.execute(() -> {
             try {
                 List<Diary> diaries = localDataSource.getAllDiaries();
-                callBack.onSuccessFromLocal(diaries);
+                onSuccessFromLocal(diaries);
             } catch (Exception e) {
-                callBack.onFailureFromLocal(e);
+                onFailureFromLocal(e);
             }
         });
+        return null;
     }
 
     @Override
@@ -113,4 +106,26 @@ public class DiaryRepository implements IDiaryRepository, DiaryResponseCallBack 
             }
         });
     }
+
+    @Override
+    public void updateDiary(Diary diary) {
+        executor.execute(() -> {
+            try {
+                localDataSource.updateDiary();
+            } catch (Exception e) {
+                onFailureFromLocal(e);
+            }
+        });
+    }
+
+    @Override
+    public List<Diary> getAllDiariesByUserId(String userId) {
+        try {
+            return localDataSource.getAllDiariesByUserId(userId);
+        } catch (Exception e) {
+            onFailureFromLocal(e);
+            return Collections.emptyList(); // Ritorna una lista vuota in caso di errore
+        }
+    }
+
 }

@@ -26,9 +26,6 @@ public interface DiaryDao {
     @Delete
     void deleteAll(List<Diary> diaries);
 
-    @Query("UPDATE Diary SET diary_name = :newName WHERE id = :diaryId")
-    void updateName(int diaryId, String newName);
-
     @Query("UPDATE Diary SET isSelected = :newIsSelected WHERE id = :diaryId")
     void updateIsSelected(int diaryId, boolean newIsSelected);
 

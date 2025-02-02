@@ -8,6 +8,7 @@ import java.util.List;
 public class DiaryLocalDataSource implements BaseDiaryLocalDataSource {
 
     private final DiaryDao diaryDao;
+    private Diary diary;
 
     public DiaryLocalDataSource(DiaryDao diaryDao) {
         this.diaryDao = diaryDao;
@@ -19,11 +20,6 @@ public class DiaryLocalDataSource implements BaseDiaryLocalDataSource {
         return diaryDao.insert(diary);
     }
 
-    @Override
-    public void updateDiaryName(int diaryId, String newName) {
-        // Aggiorna il nome del diario dato il suo ID
-        diaryDao.updateName(diaryId, newName);
-    }
 
     @Override
     public void updateDiaryIsSelected(int diaryId, boolean newIsSelected) {
@@ -58,5 +54,10 @@ public class DiaryLocalDataSource implements BaseDiaryLocalDataSource {
     @Override
     public List<Diary> getAllDiariesByUserId(String userId) {
         return diaryDao.getAllDiariesByUserId(userId);
+    }
+
+    @Override
+    public void updateDiary() {
+        diaryDao.update(diary);
     }
 }

@@ -119,6 +119,13 @@
             notifyDataSetChanged();
         }
 
+        // Metodo per aggiornare la lista dei diari
+        public void setDiaries(List<Diary> diaries) {
+            this.diaries.clear();
+            this.diaries.addAll(diaries);
+            notifyDataSetChanged();
+        }
+
         // Interfaccia per notificare il Fragment quando un elemento è selezionato con click prolungato
         public interface OnDiaryItemLongClickListener {
             void onDiaryItemLongClicked(Diary diary);
