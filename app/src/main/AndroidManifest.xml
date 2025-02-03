@@ -47,13 +47,14 @@
         </activity>
         <activity
             android:name=".ui.homepage.HomepageActivity"
-            android:exported="true" >
+            android:exported="true"
+            android:launchMode="singleTop">
         </activity>
         <activity
             android:name=".ui.diary.DiaryActivity"
             android:exported="true"
-            android:windowSoftInputMode="adjustResize"/>
-
+            android:windowSoftInputMode="adjustResize"
+            android:launchMode="singleTop"/>
         <activity
             android:name=".ui.login.LoginActivity"
             android:exported="true"
