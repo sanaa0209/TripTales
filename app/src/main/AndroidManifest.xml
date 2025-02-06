@@ -45,13 +45,6 @@
             android:name=".ui.homepage.HomepageActivity"
             android:exported="true"
             android:launchMode="singleTop">
-
-        </activity>
-        <activity
-            android:name=".ui.diary.DiaryActivity"
-            android:exported="true"
-            android:windowSoftInputMode="adjustResize"
-            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -59,9 +52,16 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".ui.diary.DiaryActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize"
+            android:launchMode="singleTop">
+        </activity>
+        <activity
             android:name=".ui.login.LoginActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
+
         </activity>
 
         <meta-data
