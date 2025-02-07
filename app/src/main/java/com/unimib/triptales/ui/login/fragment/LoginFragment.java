@@ -4,7 +4,9 @@ import static com.unimib.triptales.util.Constants.INVALID_CREDENTIALS_ERROR;
 import static com.unimib.triptales.util.Constants.INVALID_USER_ERROR;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -15,6 +17,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.VideoView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
@@ -55,6 +60,7 @@ public class LoginFragment extends Fragment {
     private ActivityResultLauncher<IntentSenderRequest> activityResultLauncher;
     private ActivityResultContracts.StartIntentSenderForResult startIntentSenderForResult;
     private UserViewModel userViewModel;
+    private ProgressDialog progressDialog;
 
     public LoginFragment() {
     }
@@ -185,8 +191,11 @@ public class LoginFragment extends Fragment {
 
                 loginButton.setEnabled(false);
 
+                showProgressDialog();
+
                 userViewModel.getUserMutableLiveData(email, password, true).observe(getViewLifecycleOwner(), result -> {
                     loginButton.setEnabled(true);
+                    dismissProgressDialog();
                     if (result.isSuccess()) {
                         SharedPreferencesUtils.setLoggedIn(getContext(), true);
                         startActivity(new Intent(getContext(), HomepageActivity.class));
@@ -237,4 +246,31 @@ public class LoginFragment extends Fragment {
         return (Patterns.EMAIL_ADDRESS.matcher(email).matches());
     }
 
+    private void showProgressDialog(){
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogLayout = inflater.inflate(R.layout.custom_progress_dialog, null);
+
+        VideoView videoView = dialogLayout.findViewById(R.id.dialog_video);
+        TextView messageTextView = dialogLayout.findViewById(R.id.dialog_message);
+        ProgressBar progressBar = dialogLayout.findViewById(R.id.dialog_progress);
+        progressBar.setVisibility(View.VISIBLE);
+
+        messageTextView.setText("Please wait...");
+
+        Uri videoUri = Uri.parse("android.resource://" + requireContext().getPackageName() + "/" + R.raw.caricamento_app);
+        videoView.setVideoURI(videoUri);
+
+        videoView.start();
+
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.setContentView(dialogLayout);
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+    }
+
+    private void dismissProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+    }
 }

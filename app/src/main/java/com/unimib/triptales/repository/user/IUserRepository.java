@@ -23,7 +23,5 @@ public interface IUserRepository {
     User getLoggedUser();
 
     MutableLiveData<Result> resetPassword(String email);
-    void saveUser(FirebaseUser user, String imageUrl, OnSuccessListener<Void> successListener, OnFailureListener failureListener);
-    void uploadProfilePicture(Uri imageUri, String userId, OnSuccessListener<Uri> successListener, OnFailureListener failureListener);
-
+    void saveUserPicture(FirebaseUser user, String imageUrl, OnSuccessListener<Void> successListener, OnFailureListener failureListener);
 }

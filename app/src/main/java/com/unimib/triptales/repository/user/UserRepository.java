@@ -112,12 +112,8 @@ public class UserRepository implements IUserRepository, UserResponseCallback {
     }
 
     @Override
-    public void saveUser(FirebaseUser user, String imageUrl, OnSuccessListener<Void> successListener, OnFailureListener failureListener) {
-        userDataRemoteDataSource.saveUser(user, imageUrl, successListener,failureListener);
+    public void saveUserPicture(FirebaseUser user, String imageUrl, OnSuccessListener<Void> successListener, OnFailureListener failureListener) {
+        userDataRemoteDataSource.saveUserPicture(user, imageUrl, successListener,failureListener);
     }
 
-    @Override
-    public void uploadProfilePicture(Uri imageUri, String userId, OnSuccessListener<Uri> successListener, OnFailureListener failureListener) {
-        userDataRemoteDataSource.uploadProfilePicture(imageUri, userId, successListener, failureListener);
-    }
 }

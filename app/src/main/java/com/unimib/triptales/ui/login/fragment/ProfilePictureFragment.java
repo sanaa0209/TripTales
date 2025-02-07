@@ -2,9 +2,13 @@ package com.unimib.triptales.ui.login.fragment;
 
 import static android.app.Activity.RESULT_OK;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,13 +22,15 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.squareup.picasso.Picasso;
 import com.unimib.triptales.R;
 import com.unimib.triptales.repository.user.IUserRepository;
 import com.unimib.triptales.ui.homepage.HomepageActivity;
 import com.unimib.triptales.ui.login.viewmodel.UserViewModelFactory;
 import com.unimib.triptales.ui.login.viewmodel.UserViewModel;
 import com.unimib.triptales.util.ServiceLocator;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 public class ProfilePictureFragment extends Fragment {
     private static final int PICK_IMAGE_REQUEST = 1;
@@ -59,7 +65,13 @@ public class ProfilePictureFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (imageUri != null) {
-                    proceedToNextStep();
+                    try {
+                        String encodedImage = encodeImageToBase64(imageUri);
+                        proceedToNextStep(encodedImage);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Toast.makeText(getContext(), "Failed to save image. Please try again.", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     Toast.makeText(getContext(), "Please select a photo first", Toast.LENGTH_SHORT).show();
                 }
@@ -70,6 +82,7 @@ public class ProfilePictureFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(getContext(), HomepageActivity.class));
+                getActivity().finish();
             }
         });
 
@@ -88,28 +101,35 @@ public class ProfilePictureFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             imageUri = data.getData();
-            Picasso.get().load(imageUri).into(imageView);
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), imageUri);
+                imageView.setImageBitmap(bitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    private void proceedToNextStep() {
+    private String encodeImageToBase64(Uri imageUri) throws IOException {
+        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), imageUri);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] byteArray = baos.toByteArray();
+        return Base64.encodeToString(byteArray, Base64.DEFAULT);
+    }
+
+    private void proceedToNextStep(String encodedImage) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
-            userViewModel.uploadProfilePicture(imageUri, user.getUid(), uri -> {
-                String imageUrl = uri.toString();
-                userViewModel.saveUser(user, imageUrl, aVoid -> {
-                    Toast.makeText(getContext(), "Profile updated successfully!", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(getContext(), HomepageActivity.class));
-                    getActivity().finish();
-
-                    }, e -> {
-                        Toast.makeText(getContext(), "Failed to update profile. Please try again.", Toast.LENGTH_SHORT).show();
-                    });
-                }, e -> {
-                    Toast.makeText(getContext(), "Failed to upload picture. Please try again.", Toast.LENGTH_SHORT).show();
-                });
-            } else {
-                Toast.makeText(getContext(), "User not logged in. Please log in and try again.", Toast.LENGTH_SHORT).show();
-                }
+            userViewModel.saveUserPicture(user, encodedImage, aVoid -> {
+                Toast.makeText(getContext(), "Profile updated successfully!", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(getContext(), HomepageActivity.class));
+                getActivity().finish();
+            }, e -> {
+                Toast.makeText(getContext(), "Failed to update profile.", Toast.LENGTH_SHORT).show();
+            });
+        } else {
+            Toast.makeText(getContext(), "User not logged in. Please log in and try again.", Toast.LENGTH_SHORT).show();
+        }
     }
 }

@@ -86,11 +86,7 @@ public class UserViewModel extends ViewModel {
         return userRepository.resetPassword(email);
     }
 
-    public void saveUser(FirebaseUser user, String imageUrl, OnSuccessListener<Void> successListener, OnFailureListener failureListener) {
-        userRepository.saveUser(user, imageUrl, successListener, failureListener);
-    }
-
-    public void uploadProfilePicture(Uri imageUri, String userId, OnSuccessListener<Uri> successListener, OnFailureListener failureListener) {
-        userRepository.uploadProfilePicture(imageUri, userId, successListener, failureListener);
+    public void saveUserPicture(FirebaseUser user, String imageUrl, OnSuccessListener<Void> successListener, OnFailureListener failureListener) {
+        userRepository.saveUserPicture(user, imageUrl, successListener, failureListener);
     }
 }
