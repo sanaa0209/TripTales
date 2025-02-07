@@ -43,6 +43,9 @@
         <action
             android:id="@+id/action_signInFragment_to_selezione"
             app:destination="@id/selezione" />
+        <action
+            android:id="@+id/action_signInFragment_to_profilePictureFragment"
+            app:destination="@id/profilePictureFragment" />
     </fragment>
     <fragment
         android:id="@+id/passwordDimenticataFragment"
@@ -50,4 +53,9 @@
         android:label="fragment_password_dimenticata"
         tools:layout="@layout/fragment_password_dimenticata" >
     </fragment>
+    <fragment
+        android:id="@+id/profilePictureFragment"
+        android:name="com.unimib.triptales.ui.login.fragment.ProfilePictureFragment"
+        android:label="fragment_profile_picture"
+        tools:layout="@layout/fragment_profile_picture" />
 </navigation>

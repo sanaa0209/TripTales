@@ -30,7 +30,9 @@ import com.unimib.triptales.source.task.BaseTaskRemoteDataSource;
 import com.unimib.triptales.source.task.TaskLocalDataSource;
 import com.unimib.triptales.source.task.TaskRemoteDataSource;
 import com.unimib.triptales.source.user.BaseUserAuthenticationRemoteDataSource;
+import com.unimib.triptales.source.user.BaseUserDataRemoteDataSource;
 import com.unimib.triptales.source.user.UserAuthenticationFirebaseDataSource;
+import com.unimib.triptales.source.user.UserFirebaseDataSource;
 
 public class ServiceLocator {
 
@@ -49,9 +51,12 @@ public class ServiceLocator {
     }
 
     public IUserRepository getUserRepository(){
-        BaseUserAuthenticationRemoteDataSource userAuthRemoteDataSource =
+        BaseUserAuthenticationRemoteDataSource userRemoteAuthenticationDataSource =
                 new UserAuthenticationFirebaseDataSource();
-        return new UserRepository(userAuthRemoteDataSource);
+
+        BaseUserDataRemoteDataSource userDataRemoteDataSource =
+                new UserFirebaseDataSource();
+        return new UserRepository(userRemoteAuthenticationDataSource, userDataRemoteDataSource);
     }
 
     public IExpenseRepository getExpenseRepository(Context context){

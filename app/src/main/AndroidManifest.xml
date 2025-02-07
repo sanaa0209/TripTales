@@ -61,6 +61,8 @@
             android:windowSoftInputMode="adjustResize">
         </activity>
 
+        <activity android:name=".ui.login.LoadingActivity"/>
+
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyC5UPTgGzRkA6Iwj8ycesnezLjw60-FWP4" />

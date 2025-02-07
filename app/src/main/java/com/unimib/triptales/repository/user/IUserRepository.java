@@ -1,8 +1,13 @@
 package com.unimib.triptales.repository.user;
 
+import android.net.Uri;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseUser;
 import com.unimib.triptales.model.User;
 import com.unimib.triptales.model.Result;
 
@@ -18,4 +23,7 @@ public interface IUserRepository {
     User getLoggedUser();
 
     MutableLiveData<Result> resetPassword(String email);
+    void saveUser(FirebaseUser user, String imageUrl, OnSuccessListener<Void> successListener, OnFailureListener failureListener);
+    void uploadProfilePicture(Uri imageUri, String userId, OnSuccessListener<Uri> successListener, OnFailureListener failureListener);
+
 }

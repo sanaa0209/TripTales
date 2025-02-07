@@ -206,4 +206,8 @@
     <string name="user_not_logged_in_error">Utente non registrato</string>
     <string name="unexpected_error">Errore inaspettato</string>
     <string name="error_password_login">Password errata. Per favore, ritenta.</string>
+    <string name="caricamento">Caricamento...</string>
+    <string name="salta">Salta</string>
+    <string name="aggiungi_foto">Aggiungi foto</string>
+    <string name="aggiungi_immagine">Aggiungi immagine del profilo</string>
 </resources>

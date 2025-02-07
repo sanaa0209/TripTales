@@ -1,18 +1,27 @@
 package com.unimib.triptales.repository.user;
 
+import android.net.Uri;
+
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseUser;
 import com.unimib.triptales.model.Result;
 import com.unimib.triptales.model.User;
 import com.unimib.triptales.source.user.BaseUserAuthenticationRemoteDataSource;
+import com.unimib.triptales.source.user.BaseUserDataRemoteDataSource;
 
 public class UserRepository implements IUserRepository, UserResponseCallback {
 
     private final BaseUserAuthenticationRemoteDataSource userRemoteDataSource;
+    private final BaseUserDataRemoteDataSource userDataRemoteDataSource;
     private final MutableLiveData<Result> userMutableLiveData = new MutableLiveData<>();
 
-    public UserRepository(BaseUserAuthenticationRemoteDataSource userRemoteDataSource) {
+    public UserRepository(BaseUserAuthenticationRemoteDataSource userRemoteDataSource,
+                          BaseUserDataRemoteDataSource userDataRemoteDataSource) {
         this.userRemoteDataSource = userRemoteDataSource;
+        this.userDataRemoteDataSource = userDataRemoteDataSource;
         this.userRemoteDataSource.setUserResponseCallback(this);
     }
 
@@ -100,5 +109,15 @@ public class UserRepository implements IUserRepository, UserResponseCallback {
     @Override
     public void onFailureFromRemoteDatabase(String message) {
         userMutableLiveData.postValue(new Result.Error(message));
+    }
+
+    @Override
+    public void saveUser(FirebaseUser user, String imageUrl, OnSuccessListener<Void> successListener, OnFailureListener failureListener) {
+        userDataRemoteDataSource.saveUser(user, imageUrl, successListener,failureListener);
+    }
+
+    @Override
+    public void uploadProfilePicture(Uri imageUri, String userId, OnSuccessListener<Uri> successListener, OnFailureListener failureListener) {
+        userDataRemoteDataSource.uploadProfilePicture(imageUri, userId, successListener, failureListener);
     }
 }
