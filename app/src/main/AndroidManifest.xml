@@ -49,6 +49,7 @@
         <activity
             android:name=".ui.homepage.HomepageActivity"
             android:exported="true"
+            android:windowSoftInputMode="adjustPan"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
