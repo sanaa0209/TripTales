@@ -1,12 +1,20 @@
 package com.unimib.triptales.util;
 
+import static androidx.core.content.ContentProviderCompat.requireContext;
+
 import android.content.Context;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.unimib.triptales.R;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +47,9 @@ public class GeoJSONParser {
                 JSONObject feature = features.getJSONObject(i);
                 JSONObject properties = feature.getJSONObject("properties");
 
-                if (properties.has("NAME_IT") && properties.getString("NAME_IT").equalsIgnoreCase(countryName)) {
+                if (properties.has(context.getString(R.string.nome_stringhe_parser)) && properties
+                        .getString(context.getString(R.string.nome_stringhe_parser))
+                        .equalsIgnoreCase(countryName)) {
                     JSONObject geometry = feature.getJSONObject("geometry");
                     String geometryType = geometry.getString("type");
 
@@ -87,6 +97,39 @@ public class GeoJSONParser {
         }
         return allPolygons;
     }
+
+    private static List<String> extractCountryNamesFromJson(Context context) {
+        List<String> countryNames = new ArrayList<>();
+        try {
+            InputStream inputStream = context.getResources().openRawResource(R.raw.world_countries);
+
+            StringBuilder builder = new StringBuilder();
+            int byteData;
+            while ((byteData = inputStream.read()) != -1) {
+                builder.append((char) byteData);
+            }
+
+            JSONObject jsonObject = new JSONObject(builder.toString());
+            JSONArray features = jsonObject.getJSONArray("features");
+
+            for (int i = 0; i < features.length(); i++) {
+                JSONObject feature = features.getJSONObject(i);
+                JSONObject properties = feature.getJSONObject("properties");
+                String countryName = properties.getString(context.getString(R.string.nome_stringhe_parser));
+                countryNames.add(countryName);
+            }
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+        }
+        return countryNames;
+    }
+
+    public static void setupAutoCompleteTextView(Context context, AutoCompleteTextView autoCompleteTextView) {
+        List<String> countryNames = extractCountryNamesFromJson(context);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_dropdown_item_1line, countryNames);
+        autoCompleteTextView.setAdapter(adapter);
+    }
+
 
 
 }

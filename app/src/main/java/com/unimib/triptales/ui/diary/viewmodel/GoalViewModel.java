@@ -5,17 +5,23 @@ import static com.unimib.triptales.util.Constants.DELETED;
 import static com.unimib.triptales.util.Constants.INVALID_DELETE;
 import static com.unimib.triptales.util.Constants.UPDATED;
 
+import android.app.Application;
+import android.content.Context;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.unimib.triptales.R;
 import com.unimib.triptales.model.Goal;
 import com.unimib.triptales.repository.goal.IGoalRepository;
+import com.unimib.triptales.util.SharedPreferencesUtils;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class GoalViewModel extends ViewModel {
+public class GoalViewModel extends AndroidViewModel {
 
     private final IGoalRepository goalRepository;
 
@@ -24,9 +30,11 @@ public class GoalViewModel extends ViewModel {
     private final MutableLiveData<List<Goal>> checkedGoalsLiveData = new MutableLiveData<>();
     private final MutableLiveData<String> errorLiveData = new MutableLiveData<>();
     private final MutableLiveData<Boolean> goalOverlayVisibility = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> deleteOverlayVisibility = new MutableLiveData<>();
     private final MutableLiveData<String> goalEvent = new MutableLiveData<>();
 
-    public GoalViewModel(IGoalRepository goalRepository) {
+    public GoalViewModel(IGoalRepository goalRepository, @NonNull Application application) {
+        super(application);
         this.goalRepository = goalRepository;
     }
 
@@ -44,16 +52,22 @@ public class GoalViewModel extends ViewModel {
 
     public MutableLiveData<Boolean> getGoalOverlayVisibility() { return goalOverlayVisibility; }
 
+    public MutableLiveData<Boolean> getDeleteOverlayVisibility() { return deleteOverlayVisibility; }
+
     public MutableLiveData<String> getGoalEvent() { return goalEvent; }
 
     public void setGoalOverlayVisibility(boolean visible) {
         goalOverlayVisibility.postValue(visible);
     }
 
+    public void setDeleteOverlayVisibility(boolean visible) {
+        deleteOverlayVisibility.postValue(visible);
+    }
+
     public boolean validateInputGoal(String name){
         boolean correct = true;
         if (name.isEmpty()) {
-            errorLiveData.setValue("Inserisci il nome dell'obiettivo");
+            errorLiveData.setValue(getApplication().getString(R.string.errorGoalName));
         } else {
             errorLiveData.setValue(null);
         }
@@ -66,8 +80,10 @@ public class GoalViewModel extends ViewModel {
         goalsLiveData.setValue(goalRepository.getAllGoals());
     }
 
-    public void insertGoal(String name, String description) {
-        Goal goal = new Goal(name, description, false, false);
+    public void insertGoal(String name, String description, Context context) {
+        String diaryId = SharedPreferencesUtils.getDiaryId(context);
+        Goal goal = new Goal(name, description, false, false,
+                diaryId, System.currentTimeMillis());
         goalRepository.insertGoal(goal);
         fetchAllGoals();
         goalEvent.setValue(ADDED);
@@ -118,9 +134,10 @@ public class GoalViewModel extends ViewModel {
         }
     }
 
-    public List<Goal> getCheckedGoals() {
+    public void getCheckedGoals() {
         checkedGoalsLiveData.setValue(goalRepository.getCheckedGoals());
-        return checkedGoalsLiveData.getValue();
+        checkedGoalsLiveData.getValue();
+        fetchAllGoals();
     }
 
     public void toggleGoalSelection(Goal goal){

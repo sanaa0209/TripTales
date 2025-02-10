@@ -1,9 +1,10 @@
 package com.unimib.triptales.repository.task;
 
+import android.util.Log;
+
 import androidx.lifecycle.MutableLiveData;
 
-import com.unimib.triptales.model.Expense;
-import com.unimib.triptales.model.Goal;
+import com.unimib.triptales.database.AppRoomDatabase;
 import com.unimib.triptales.model.Task;
 import com.unimib.triptales.source.task.BaseTaskLocalDataSource;
 import com.unimib.triptales.source.task.BaseTaskRemoteDataSource;
@@ -16,6 +17,8 @@ public class TaskRepository implements ITaskRepository, TaskResponseCallback{
     private final BaseTaskRemoteDataSource taskRemoteDataSource;
     private final MutableLiveData<List<Task>> tasksLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<Task>> selectedTasksLiveData = new MutableLiveData<>();
+    private boolean remoteDelete = false;
+    private boolean localDelete = false;
 
     public TaskRepository(BaseTaskLocalDataSource taskLocalDataSource, BaseTaskRemoteDataSource taskRemoteDataSource) {
         this.taskLocalDataSource = taskLocalDataSource;
@@ -76,26 +79,44 @@ public class TaskRepository implements ITaskRepository, TaskResponseCallback{
     @Override
     public List<Task> getSelectedTasks() {
         taskLocalDataSource.getSelectedTasks();
-        taskRemoteDataSource.getSelectedTasks();
         return selectedTasksLiveData.getValue();
     }
 
+    @Override
+    public void onSuccessDeleteFromRemote() {
+        remoteDelete = true;
+    }
 
     @Override
-    public void onSuccessFromRemote() {}
+    public void onSuccessFromRemote(List<Task> tasks) {
+        AppRoomDatabase.databaseWriteExecutor.execute(() -> {
+            if(remoteDelete || !localDelete){
+                for (Task task : tasks) {
+                    taskLocalDataSource.insertTask(task);
+                }
+                taskLocalDataSource.getAllTasks();
+                remoteDelete = false;
+                localDelete = false;
+            }
+        });
+    }
 
     @Override
-    public void onSuccessFromRemote(List<Task> tasks) {}
+    public void onFailureFromRemote(Exception exception) {
+        Log.e("FirebaseError", "Error task: " + exception.getMessage());
+    }
 
     @Override
-    public void onFailureFromRemote(Exception exception) {}
-
-    @Override
-    public void onSuccessFromLocal() {}
+    public void onSuccessDeleteFromLocal() {
+        localDelete = true;
+    }
 
     @Override
     public void onSuccessFromLocal(List<Task> tasks) {
         tasksLiveData.setValue(tasks);
+        for(Task task : tasks){
+            taskRemoteDataSource.insertTask(task);
+        }
     }
 
     @Override
@@ -104,5 +125,7 @@ public class TaskRepository implements ITaskRepository, TaskResponseCallback{
     }
 
     @Override
-    public void onFailureFromLocal(Exception exception) {}
+    public void onFailureFromLocal(Exception exception) {
+        Log.e("FirebaseError", "Error task: " + exception.getMessage());
+    }
 }

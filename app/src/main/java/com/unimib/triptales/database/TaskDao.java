@@ -3,6 +3,7 @@ package com.unimib.triptales.database;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
@@ -11,7 +12,7 @@ import java.util.List;
 
 @Dao
 public interface TaskDao {
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(Task task);
 
     @Update
@@ -32,13 +33,9 @@ public interface TaskDao {
     @Delete
     void deleteAll(List<Task> tasks);
 
-    @Query("SELECT * FROM Task")
-    List<Task> getAll();
+    @Query("SELECT * FROM Task WHERE diaryId = :diaryId ORDER BY task_timestamp DESC")
+    List<Task> getAll(String diaryId);
 
-    @Query("SELECT * FROM Task WHERE task_isSelected = 1")
-    List<Task> getSelectedTasks();
-
-    //Recupero delle spese di un determinato diario
-    /*@Query("SELECT * FROM Task WHERE diaryId = :diaryId")
-    List<Task> getAllByDiaryId(int diaryId);*/
+    @Query("SELECT * FROM Task WHERE task_isSelected = 1 AND diaryId = :diaryId")
+    List<Task> getSelectedTasks(String diaryId);
 }

@@ -1,7 +1,6 @@
 package com.unimib.triptales.source.task;
 
 import com.unimib.triptales.model.Task;
-import com.unimib.triptales.repository.goal.GoalResponseCallback;
 import com.unimib.triptales.repository.task.TaskResponseCallback;
 
 import java.util.List;
@@ -22,5 +21,4 @@ public abstract class BaseTaskLocalDataSource {
     public abstract void deleteAllTasks(List<Task> tasks);
     public abstract void getAllTasks();
     public abstract void getSelectedTasks();
-    //List<Task> getAllTasksByDiaryId(int diaryId);
 }

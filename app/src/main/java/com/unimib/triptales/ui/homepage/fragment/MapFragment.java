@@ -2,9 +2,7 @@ package com.unimib.triptales.ui.homepage.fragment;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +11,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -23,19 +23,17 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.unimib.triptales.R;
-import com.unimib.triptales.database.AppRoomDatabase;
-import com.unimib.triptales.database.DiaryDao;
-import com.unimib.triptales.ui.homepage.viewmodel.SharedViewModel;
 
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
+import com.unimib.triptales.repository.diary.IDiaryRepository;
+import com.unimib.triptales.ui.diary.viewmodel.ViewModelFactory;
+import com.unimib.triptales.ui.homepage.viewmodel.HomeViewModel;
 import com.unimib.triptales.util.GeoJSONParser;
+import com.unimib.triptales.util.ServiceLocator;
 import com.unimib.triptales.util.SharedPreferencesUtils;
 
 import java.util.ArrayList;
@@ -50,8 +48,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private FusedLocationProviderClient fusedLocationClient;
-    private DiaryDao diaryDao;
-    private HashMap<String, List<Polygon>> countryPolygons = new HashMap<>();
+    private final HashMap<String, List<Polygon>> countryPolygons = new HashMap<>();
+    private HomeViewModel homeViewModel;
 
     @Nullable
     @Override
@@ -67,18 +65,24 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             mapFragment.getMapAsync(this);
         }
 
-        diaryDao = AppRoomDatabase.getDatabase(getContext()).diaryDao();
+        IDiaryRepository diaryRepository = ServiceLocator.getINSTANCE().getDiaryRepository(getContext());
+        homeViewModel = new ViewModelProvider(requireActivity(),
+                new ViewModelFactory(diaryRepository)).get(HomeViewModel.class);
 
         return rootView;
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(@NonNull GoogleMap googleMap) {
 
         mMap = googleMap;
-        updateMap();
+        mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(requireContext(), R.raw.map_gray_style));
+        updateMap(homeViewModel.getAllCountries(SharedPreferencesUtils.getLoggedUserId()));
 
-        /*// Controlla i permessi di localizzazione
+        homeViewModel.getCountriesLiveData().observe(getViewLifecycleOwner(),
+                this::updateMap);
+
+        // Controlla i permessi di localizzazione
         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // Richiedi i permessi
@@ -88,9 +92,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
 
         // Permessi concessi: abilita la posizione dell'utente
-        enableUserLocation();*/
+        enableUserLocation();
     }
-
 
     private void enableUserLocation() {
         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
@@ -103,8 +106,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 if (location != null) {
                     LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
                     mMap.addMarker(new MarkerOptions().position(userLocation).title("You are here"));
-                    CameraPosition cameraPosition = new CameraPosition.Builder().target(userLocation).zoom(15).build();
-                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                    //CameraPosition cameraPosition = new CameraPosition.Builder().target(userLocation).zoom(15).build();
+                    //mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                 } else {
                     Toast.makeText(getContext(), "Unable to get location", Toast.LENGTH_SHORT).show();
                 }
@@ -125,10 +128,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    private void updateMap(){
-        String userId = SharedPreferencesUtils.getLoggedUserId();
-        List<String> countryList = diaryDao.getAllCountriesByUserId(userId);
-
+    private void updateMap(List<String> countryList){
         HashSet<String> countryListSet = new HashSet<>(countryList);
         HashSet<String> countryPolygonsSet = new HashSet<>(countryPolygons.keySet());
 
@@ -144,11 +144,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             if(!countryListSet.contains(country)){
                 if(countryPolygons.containsKey(country)){
                     List<Polygon> polygons = countryPolygons.get(country);
-
-                    for(Polygon polygon : polygons){
-                        polygon.remove();
+                    if(polygons != null) {
+                        for (Polygon polygon : polygons) {
+                            polygon.remove();
+                        }
                     }
-
                     countryPolygons.remove(country);
                 }
             }
@@ -165,9 +165,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         for (List<LatLng> polygon : countryBorders) {
             PolygonOptions polygonOptions = new PolygonOptions()
                     .addAll(polygon)
-                    .strokeColor(getResources().getColor(R.color.secondary))
-                    .fillColor(Color.parseColor("#70F6EEE5"))
-                    .strokeWidth(4);
+                    .strokeColor(ContextCompat.getColor(requireContext(), R.color.black))
+                    .fillColor(ContextCompat.getColor(requireContext(), R.color.primary))
+                    .strokeWidth(1);
             Polygon newPolygon = mMap.addPolygon(polygonOptions);
             coloredPolygons.add(newPolygon);
         }

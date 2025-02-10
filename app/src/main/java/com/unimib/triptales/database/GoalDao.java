@@ -3,6 +3,7 @@ package com.unimib.triptales.database;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 import com.unimib.triptales.model.Goal;
@@ -11,7 +12,7 @@ import java.util.List;
 
 @Dao
 public interface GoalDao {
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(Goal goal);
 
     @Update
@@ -38,16 +39,12 @@ public interface GoalDao {
     @Delete
     void deleteAll(List<Goal> goals);
 
-    @Query("SELECT * FROM Goal")
-    List<Goal> getAll();
+    @Query("SELECT * FROM Goal WHERE diaryId = :diaryId ORDER BY goal_timestamp DESC")
+    List<Goal> getAll(String diaryId);
 
-    //Recupero delle spese di un determinato diario
-    /*@Query("SELECT * FROM Goal WHERE diaryId = :diaryId")
-    List<Goal> getAllByDiaryId(int diaryId);*/
+    @Query("SELECT * FROM Goal WHERE goal_isSelected = 1 AND diaryId = :diaryId")
+    List<Goal> getSelectedGoals(String diaryId);
 
-    @Query("SELECT * FROM Goal WHERE goal_isSelected = 1")
-    List<Goal> getSelectedGoals();
-
-    @Query("SELECT * FROM Goal WHERE goal_isChecked = 1")
-    List<Goal> getCheckedGoals();
+    @Query("SELECT * FROM Goal WHERE goal_isChecked = 1 AND diaryId = :diaryId")
+    List<Goal> getCheckedGoals(String diaryId);
 }
