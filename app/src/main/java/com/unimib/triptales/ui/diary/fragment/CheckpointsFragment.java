@@ -1,6 +1,7 @@
 package com.unimib.triptales.ui.diary.fragment;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -149,9 +150,16 @@ public class CheckpointsFragment extends Fragment implements OnMapReadyCallback 
                 new ViewModelFactory(checkpointDiaryRepository)).get(CheckpointDiaryViewModel.class);
 
 
-        checkpointDiaryViewModel.getCheckpointDiaries().observe(getViewLifecycleOwner(), this::loadSavedCheckpoints);
-        checkpointDiaryViewModel.loadCheckpoints(getContext());
+        checkpointDiaryViewModel.getCheckpointDiaries().observe(getViewLifecycleOwner(), checkpoints -> {
+            if (checkpoints != null) {
+                loadSavedCheckpoints(checkpoints);
+            } else {
+                Log.e("CheckpointsFragment", "Checkpoints list is null");
+            }
+        });
 
+        // Carica i checkpoint iniziali
+        checkpointDiaryViewModel.loadCheckpoints();
 
         // Inizializza le viste
         checkpointsMap = rootView.findViewById(R.id.mappaTappe);
@@ -224,6 +232,12 @@ public class CheckpointsFragment extends Fragment implements OnMapReadyCallback 
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+
+        checkpointDiaryViewModel.getOperationStatus().observe(getViewLifecycleOwner(), success -> {
+            if (success != null && success) {
+                checkpointDiaryViewModel.loadCheckpoints();
+            }
+        });
 
         checkpointsLayout = view.findViewById(R.id.checkpointsLayout);
         inflater = LayoutInflater.from(view.getContext());
@@ -362,7 +376,6 @@ public class CheckpointsFragment extends Fragment implements OnMapReadyCallback 
                     if (imageUri != null) {
                         checkpointDiaryViewModel.insertCheckpoint(checkpointNameSave, checkpointDateSave, imageUri, latLng, getContext());
                         checkpointsLayout.removeView(add_checkpoint);
-                        checkpointsLayout.removeView(add_checkpoint);
 
                         hideKeyboard();
 
@@ -373,6 +386,7 @@ public class CheckpointsFragment extends Fragment implements OnMapReadyCallback 
                         checkpointName.setText("");
                         checkpointDate.setText("");
                         immagineTappaPreview.setImageURI(null);
+                        selectedImageUriMappa = null;
 
                         Snackbar.make(getContext(), checkpointsLayout, "La tappa è stata aggiunta con successo",
                                 Snackbar.LENGTH_SHORT).show();
@@ -425,7 +439,7 @@ public class CheckpointsFragment extends Fragment implements OnMapReadyCallback 
         cardView.setOnLongClickListener(v -> {
             CheckpointDiary checkpointFromTag = (CheckpointDiary) cardView.getTag();
 
-            // Richiama il ViewModel per la selezione/deselezione la tappa
+            // Richiama il ViewModel per la selezione/deselezione della tappa
             checkpointDiaryViewModel.toggleCheckpointSelection(checkpointFromTag);
 
             // Verifica se la tappa è attualmente selezionata
@@ -434,15 +448,15 @@ public class CheckpointsFragment extends Fragment implements OnMapReadyCallback 
             if (isCurrentlySelected) {
                 cardView.setCardBackgroundColor(getResources().getColor(R.color.background_dark));
                 cardView.setStrokeColor(getResources().getColor(R.color.background_dark));
-                tappeSelezionate.add(cardView);
+                tappeSelezionate.add(cardView); // Aggiungi alla lista delle tappe selezionate
             } else {
                 cardView.setCardBackgroundColor(getResources().getColor(R.color.primary));
                 cardView.setStrokeColor(getResources().getColor(R.color.primary));
-                tappeSelezionate.remove(cardView);
+                tappeSelezionate.remove(cardView); // Rimuovi dalla lista delle tappe selezionate
             }
 
             // Aggiorna lo stato dei pulsanti
-            checkpointDiaryViewModel.getSelectedCheckpoints().observe(this, selectedCheckpoints -> {
+            checkpointDiaryViewModel.getSelectedCheckpoints().observe(getViewLifecycleOwner(), selectedCheckpoints -> {
                 updateButtonVisibility(selectedCheckpoints);
             });
 
@@ -571,21 +585,20 @@ public class CheckpointsFragment extends Fragment implements OnMapReadyCallback 
             List<CheckpointDiary> selectedCheckpoints = checkpointDiaryViewModel.getSelectedCheckpoints().getValue();
 
             if (selectedCheckpoints != null && !selectedCheckpoints.isEmpty()) {
-                checkpointDiaryViewModel.deleteSelectedCheckpoints(selectedCheckpoints, getContext());
+                new AlertDialog.Builder(requireContext())
+                        .setTitle("Elimina tappe")
+                        .setMessage("Sei sicuro di voler eliminare le tappe selezionate?")
+                        .setPositiveButton("Elimina", (dialog, which) -> {
+                            checkpointDiaryViewModel.deleteSelectedCheckpoints(selectedCheckpoints, getContext());
 
-                for (MaterialCardView card : tappeSelezionate) {
-                    checkpointContainer.removeView(card);
-                }
+                            checkpointDiaryViewModel.loadCheckpoints();
 
-                tappeSelezionate.clear();
-                checkpointDiaryViewModel.clearSelectedCheckpoints();
-
-                // Nasconde i pulsanti
-                editCheckpoint.setVisibility(View.GONE);
-                deleteCheckpoint.setVisibility(View.GONE);
-
-                Snackbar.make(getContext(), checkpointsLayout, "Tappe selezionate eliminate",
-                        Snackbar.LENGTH_SHORT).show();
+                            Snackbar.make(checkpointsLayout, "Tappe eliminate: " + selectedCheckpoints.size(), Snackbar.LENGTH_SHORT).show();
+                        })
+                        .setNegativeButton("Annulla", null)
+                        .show();
+            } else {
+                Snackbar.make(checkpointsLayout, "Nessuna tappa selezionata", Snackbar.LENGTH_SHORT).show();
             }
         });
     }
@@ -642,40 +655,42 @@ public class CheckpointsFragment extends Fragment implements OnMapReadyCallback 
     // Metodo per caricare le tappe salvate nel dispositivo
     private void loadSavedCheckpoints(List<CheckpointDiary> checkpoints) {
         checkpointContainer.removeAllViews();
+        tappeEsistenti.clear();
 
-        String currentDiaryIdStr = SharedPreferencesUtils.getDiaryId(getContext());
-        if (currentDiaryIdStr == null) {
+        if (checkpoints == null || checkpoints.isEmpty()) {
+            Log.d("CheckpointsFragment", "Nessuna tappa da visualizzare");
             return;
         }
+
+        String currentDiaryIdStr = SharedPreferencesUtils.getDiaryId(getContext());
+        if (currentDiaryIdStr == null) return;
 
         List<CheckpointDiary> currentDiaryCheckpoints = checkpoints.stream()
                 .filter(checkpoint -> checkpoint.getDiaryId().equals(currentDiaryIdStr))
                 .collect(Collectors.toList());
 
-        for (CheckpointDiary checkpoint : currentDiaryCheckpoints) {
-            addCheckpointToList(checkpoint.getNome(), checkpoint.getData(), checkpoint.getImmagineUri(), checkpoint);
-        }
-
-        if (googleMap != null) {
-            googleMap.clear();
+        getActivity().runOnUiThread(() -> {
             for (CheckpointDiary checkpoint : currentDiaryCheckpoints) {
-                LatLng location = new LatLng(checkpoint.getLatitude(), checkpoint.getLongitude());
-                addCheckpointToMap(checkpoint.getNome(), location);
-                googleMap.addMarker(new MarkerOptions()
-                        .position(location)
-                        .title(checkpoint.getNome()));
+                tappeEsistenti.add(checkpoint.getNome());
+                addCheckpointToList(checkpoint.getNome(), checkpoint.getData(), checkpoint.getImmagineUri(), checkpoint);
             }
 
-            if (!currentDiaryCheckpoints.isEmpty()) {
-                LatLng lastPosition = new LatLng(
-                        currentDiaryCheckpoints.get(currentDiaryCheckpoints.size() - 1).getLatitude(),
-                        currentDiaryCheckpoints.get(currentDiaryCheckpoints.size() - 1).getLongitude()
-                );
-                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastPosition, 15));
+            // Aggiorna mappa
+            if (googleMap != null) {
+                googleMap.clear();
+                for (CheckpointDiary checkpoint : currentDiaryCheckpoints) {
+                    LatLng location = new LatLng(checkpoint.getLatitude(), checkpoint.getLongitude());
+                    googleMap.addMarker(new MarkerOptions().position(location).title(checkpoint.getNome()));
+                }
+
+                if (!currentDiaryCheckpoints.isEmpty()) {
+                    CheckpointDiary lastCheckpoint = currentDiaryCheckpoints.get(currentDiaryCheckpoints.size() - 1);
+                    LatLng lastPosition = new LatLng(lastCheckpoint.getLatitude(), lastCheckpoint.getLongitude());
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastPosition, 15));
+                }
             }
-        }
+        });
     }
-
 
     // Metodo per inizializzare la mappa e mostrare l'overlay di salvataggio delle tappe
     @Override
@@ -720,7 +735,7 @@ public class CheckpointsFragment extends Fragment implements OnMapReadyCallback 
     @Override
     public void onResume() {
         super.onResume();
-        checkpointDiaryViewModel.loadCheckpoints(getContext());
+        checkpointDiaryViewModel.loadCheckpoints();
     }
 
     private void showDatePickerDialog() {

@@ -27,7 +27,7 @@ public class CheckpointDiaryLocalDataSource extends BaseCheckpointDiaryLocalData
     @Override
     public void getAllCheckpointDiaries() {
         try {
-            List<CheckpointDiary> checkpoints = checkpointDiaryDao.getAllCheckpointDiaries();
+            List<CheckpointDiary> checkpoints = checkpointDiaryDao.getCheckpointDiaryById(diaryId);
             checkpointDiaryCallback.onSuccessFromLocal(checkpoints);
         } catch (Exception e) {
             checkpointDiaryCallback.onFailureFromLocal(e);

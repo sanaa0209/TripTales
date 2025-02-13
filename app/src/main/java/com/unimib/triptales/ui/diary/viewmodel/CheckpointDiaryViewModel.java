@@ -4,8 +4,6 @@ import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Pair;
 
 import androidx.lifecycle.LiveData;
@@ -82,25 +80,15 @@ public class CheckpointDiaryViewModel extends ViewModel {
         selectedCheckpointDiaries.setValue(new ArrayList<>());
     }
 
-    public void loadCheckpoints(Context context) {
+    public void loadCheckpoints() {
         executorService.execute(() -> {
-            String diaryIdStr = SharedPreferencesUtils.getDiaryId(context);
-            if (diaryIdStr == null) {
-                checkpointDiariesLiveData.postValue(new ArrayList<>());
-                return;
-            }
-
-            List<CheckpointDiary> checkpoints = checkpointDiaryRepository.getCheckpointDiariesByDiaryId(diaryIdStr);
-
-            new Handler(Looper.getMainLooper()).post(() -> {
-                checkpointDiariesLiveData.setValue(checkpoints);
-            });
+            List<CheckpointDiary> checkpoints = checkpointDiaryRepository.getAllCheckpointDiaries();
+            checkpointDiariesLiveData.postValue(checkpoints);
         });
     }
 
 
     public void insertCheckpoint(String nome, String data, Uri imageUri, LatLng latLng, Context context) {
-
         String diaryIdStr = SharedPreferencesUtils.getDiaryId(context);
         if (diaryIdStr == null) {
             operationStatus.postValue(false);
@@ -109,17 +97,20 @@ public class CheckpointDiaryViewModel extends ViewModel {
 
         CheckpointDiary nuovaCheckpoint = new CheckpointDiary(diaryIdStr, nome, data, imageUri.toString(), latLng.latitude, latLng.longitude);
 
-        try {
-            long insertedId = checkpointDiaryRepository.insertCheckpointDiary(nuovaCheckpoint);
-            if (insertedId > 0) {
-                SharedPreferencesUtils.saveCheckpointDiaryId(context, (int)insertedId);
-                loadCheckpoints(context);
-                operationStatus.postValue(true);
+        executorService.execute(() -> {
+            try {
+                long insertedId = checkpointDiaryRepository.insertCheckpointDiary(nuovaCheckpoint);
+                if (insertedId > 0) {
+                    SharedPreferencesUtils.saveCheckpointDiaryId(context, (int) insertedId);
+                    loadCheckpoints();
+                    operationStatus.postValue(true);
+                }
+            } catch (Exception e) {
+                operationStatus.postValue(false);
             }
-        } catch (Exception e) {
-            operationStatus.postValue(false);
-        }
+        });
     }
+
 
     public void updateCheckpointDiary(int checkpointId, String newName, String newDate, Uri newImageUri, Context context) {
         executorService.execute(() -> {
@@ -133,7 +124,7 @@ public class CheckpointDiaryViewModel extends ViewModel {
                 if (newImageUri != null) {
                     checkpointDiaryRepository.updateCheckpointDiaryImageUri(checkpointId, newImageUri.toString());
                 }
-                loadCheckpoints(context);
+                loadCheckpoints();
                 operationStatus.postValue(true);
             } catch (Exception e) {
                 operationStatus.postValue(false);
@@ -148,7 +139,11 @@ public class CheckpointDiaryViewModel extends ViewModel {
                 for (CheckpointDiary checkpointDiary : selectedCheckpoints) {
                     checkpointDiaryRepository.deleteCheckpointDiary(checkpointDiary);
                 }
-                loadCheckpoints(context);
+
+                loadCheckpoints();
+
+                selectedCheckpointDiaries.postValue(new ArrayList<>());
+
                 operationStatus.postValue(true);
             } catch (Exception e) {
                 operationStatus.postValue(false);
@@ -193,4 +188,7 @@ public class CheckpointDiaryViewModel extends ViewModel {
     }
 
 
+    public MutableLiveData<Boolean> getOperationStatus() {
+        return operationStatus;
+    }
 }

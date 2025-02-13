@@ -47,20 +47,10 @@ public class ImageCardItemViewModel extends ViewModel {
         newItem.setSelected(false);
         imageCardItemRepository.insertImageCardItem(newItem);
 
-        fetchAllImageCardItems(context);
+        loadAllImageCardItems();
         operationStatus.postValue(true);
     }
 
-    public void fetchAllImageCardItems(Context context) {
-        int checkpointDiaryId = SharedPreferencesUtils.getCheckpointDiaryId(context);
-        if (checkpointDiaryId <= 0) {
-            operationStatus.postValue(false);
-            return;
-        }
-        List<ImageCardItem> imageCardItems =
-                imageCardItemRepository.getImageCardItemByCheckpointDiaryId(checkpointDiaryId);
-        imageCardItemsLiveData.postValue(imageCardItems);
-    }
 
     public void loadAllImageCardItems() {
         List<ImageCardItem> items = imageCardItemRepository.getAllImageCardItems();
@@ -74,7 +64,7 @@ public class ImageCardItemViewModel extends ViewModel {
                 for (ImageCardItem item : selectedImageCardItems) {
                     imageCardItemRepository.deleteImageCardItem(item);
                 }
-                fetchAllImageCardItems(context);
+                loadAllImageCardItems();
                 operationStatus.postValue(true);
             } catch (Exception e) {
                 operationStatus.postValue(false);
@@ -97,7 +87,7 @@ public class ImageCardItemViewModel extends ViewModel {
                 if (newImageUri != null) {
                     imageCardItemRepository.updateImageCardItemImageUri(cardId, newImageUri.toString());
                 }
-                fetchAllImageCardItems(context);
+                loadAllImageCardItems();
                 operationStatus.postValue(true);
             } catch (Exception e) {
                 operationStatus.postValue(false);

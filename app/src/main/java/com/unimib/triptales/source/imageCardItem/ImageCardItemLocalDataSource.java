@@ -17,7 +17,7 @@ public class ImageCardItemLocalDataSource extends BaseImageCardItemLocalDataSour
     @Override
     public void getAllImageCardItems() {
         try {
-            List<ImageCardItem> imageCardItems = imageCardItemDao.getAllImageCardItems();
+            List<ImageCardItem> imageCardItems = imageCardItemDao.getImageCardItemByCheckpointDiaryId(checkpointDiaryId);
             imageCardItemCallback.onSuccessFromLocal(imageCardItems);
         } catch (Exception e) {
             imageCardItemCallback.onFailureFromLocal(e);

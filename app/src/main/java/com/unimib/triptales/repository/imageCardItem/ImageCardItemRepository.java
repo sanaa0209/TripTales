@@ -37,14 +37,7 @@ public class ImageCardItemRepository implements IImageCardItemRepository, ImageC
     public List<ImageCardItem> getAllImageCardItems() {
         imageCardItemLocalDataSource.getAllImageCardItems();
         imageCardItemRemoteDataSource.getAllImageCardItems();
-
-        List<ImageCardItem> allItems = imageCardItemsLiveData.getValue();
-        if (allItems != null) {
-            return allItems.stream()
-                    .filter(item -> item.getCheckpointDiaryId() == this.checkpointDiaryId)
-                    .collect(Collectors.toList());
-        }
-        return new ArrayList<>();
+        return imageCardItemsLiveData.getValue();
     }
 
     @Override

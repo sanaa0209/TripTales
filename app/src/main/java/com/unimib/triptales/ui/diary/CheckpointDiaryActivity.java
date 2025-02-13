@@ -127,7 +127,6 @@ public class CheckpointDiaryActivity extends AppCompatActivity {
         recyclerViewCards.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewCards.setAdapter(imageCardItemAdapter);
 
-        imageCardItemViewModel.fetchAllImageCardItems(this);
         imageCardItemViewModel.loadAllImageCardItems();
 
         imageCardItemViewModel.getImageCardItemsLiveData().observe(this, imageCardItems -> {
@@ -489,7 +488,7 @@ public class CheckpointDiaryActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        imageCardItemViewModel.fetchAllImageCardItems(this);
+        imageCardItemViewModel.loadAllImageCardItems();
     }
 
     private void showDatePickerDialog(TextInputEditText dateEditText) {
